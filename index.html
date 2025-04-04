@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -69,16 +68,30 @@
         }
         .hero {
             height: 50vh;
-            padding: 20px 80px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
             display: none;
-            align-items: center;
-            justify-content: space-between;
         }
         .hero.active {
-            display: flex;
+            display: block;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
         }
         .hero-content {
+            position: absolute;
+            top: 20%;
+            left: 10%;
             max-width: 400px;
+            color: white;
+            z-index: 2;
         }
         .hero-content h1 {
             font-size: 24px;
@@ -106,18 +119,16 @@
             gap: 10px;
             margin-left: 30px;
         }
-        .hero-content .buttons a {
-            padding: 10px;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            text-align: center;
-        }
         .watch-now {
             background-color: #ff6200;
             color: white;
             font-weight: bold;
             cursor: pointer;
+            padding: 10px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            text-align: center;
         }
         .add-to-watchlist {
             background-color: #444;
@@ -130,34 +141,8 @@
             justify-content: center;
             padding: 0;
         }
-        .hero-thumbnail {
-            width: 600px;
-            cursor: pointer;
-        }
-        .hero-thumbnail img {
-            width: 100%;
-            border-radius: 10px;
-        }
-        .video-player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transform: translate(10%, 10%);
-            background: rgba(0, 0, 0, 0.8);
-            margin-left: 100px;
-        }
-        .video-player.active {
-            display: flex;
-        }
-        .video-player iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
+        .add-to-watchlist:hover {
+            background-color: #ff6200;
         }
         .latest-releases {
             padding: 20px 80px;
@@ -181,15 +166,35 @@
             flex: 0 0 auto;
             width: 200px;
             cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
         }
         .release-item img {
             width: 100%;
             border-radius: 10px;
+            transition: opacity 0.2s;
         }
-        .release-item p {
-            margin: 5px 0 0;
-            font-size: 14px;
-            text-align: center;
+        .play-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .play-icon img {
+            width: 50px;
+            height: 50px;
+        }
+        .release-item:hover img {
+            opacity: 0.8;
+        }
+        .release-item:hover .play-icon {
+            opacity: 1;
         }
         .nav-buttons {
             position: absolute;
@@ -223,73 +228,137 @@
             left: 4%;
         }
         .video-modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
             align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
         .video-modal.active {
             display: flex;
+            
+        }
+        .video-player {
+            width: 90vw;
+            height: 90vh;
+            max-width: 1200px;
+            max-height: 700px;
+            background-color: #000;
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
         }
         .video-frame {
             width: 90vw;
             height: 90vh;
             max-width: 1200px;
             max-height: 700px;
-            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .video-frame iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ff6200;
+        #search-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #search-modal.active {
+            display: flex;
+        }
+        #search-modal .video-frame {
+            background: #2a2a2a;
+            padding: 20px;
+            color: white;
+        }
+        #search-input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        #search-button {
+            background-color: #ff6200;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 10px;
             cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        #search-results-container {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+        }
+        .search-result-item p {
+            margin: 0;
+            font-size: 16px;
         }
         @media (max-width: 768px) {
             .sidebar {
                 width: 40px;
             }
+            .hero-content {
+                position: static;
+                padding: 10px;
+            }
             .hero {
                 height: auto;
-                flex-direction: column;
-            }
-            .hero-thumbnail {
-                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <a href="https://www.youtube.com/@SmartShorts__s/shorts"><img src="logog.png" alt="Smart Short" width="50" height="50" /></a>
+        <a href="https://www.youtube.com/@SmartShorts__s/shorts"><img src="shorts.png" alt="Smart Short" width="50" height="50" loading="lazy" /></a>
         <a href="#">🏠</a>
-        <a href="#">🏠</a>
+        <a href="#" id="search-toggle">🔍</a>
+        <a href="#">📺</a>
+        <a href="#">🎬</a>
+        <a href="#">🎮</a>
     </div>
     <div class="header">
-        <div class="logo"><img src="logog.png" alt="Smart Short" /></div>
+        <div class="logo"><img src="logog.png" alt="Smart Short" loading="lazy" /></div>
         <h3 class="bicolor">SmartShorts</h3>
         <div class="menu">
             <a class="active" href="#home">Home</a>
+            <a href="https://www.instagram.com/smartshorts__" target="_blank">Contact</a>
+            <a href="https://x.com/SmartShorts__s" target="_blank">Login</a>
         </div>
     </div>
     <div class="hero-container">
         <div class="hero-slides">
-            <div class="hero" id="hero0">
+            <div class="hero active" id="hero0" style="background-image: url('Memes.png');">
+                <div class="overlay"></div>
                 <div class="hero-content" id="hero-content0">
                     <h1>👉 "RCB Trolls 😂 | IPL Funny Memes | RCB Chokers Moments "</h1>
                     <div class="meta">U/A 13+ • English</div>
@@ -300,14 +369,9 @@
                         <a href="#" class="add-to-watchlist">+</a>
                     </div>
                 </div>
-                <div class="hero-thumbnail" id="hero-thumbnail0">
-                    <img src="Memes.png" alt="RCB Trolls" />
-                </div>
-                <div class="video-player" id="video-player0">
-                    <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                </div>
             </div>
-            <div class="hero" id="hero1">
+            <div class="hero" id="hero1" style="background-image: url('thumb.jpg');">
+                <div class="overlay"></div>
                 <div class="hero-content" id="hero-content1">
                     <h1>🔥 MrBeast vs IShowSpeed - The Ultimate Showdown! 💥</h1>
                     <div class="meta">U/A 13+ • English</div>
@@ -318,14 +382,9 @@
                         <a href="#" class="add-to-watchlist">+</a>
                     </div>
                 </div>
-                <div class="hero-thumbnail" id="hero-thumbnail1">
-                    <img src="thumb.jpg" alt="MrBeast vs IShowSpeed" />
-                </div>
-                <div class="video-player" id="video-player1">
-                    <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                </div>
             </div>
-            <div class="hero" id="hero2">
+            <div class="hero" id="hero2" style="background-image: url('droom.png');">
+                <div class="overlay"></div>
                 <div class="hero-content" id="hero-content2">
                     <h1>👽 Dr. Droom - Marvel’s Next Big Villain? | Official Trailer (2025)</h1>
                     <div class="meta">U/A 13+ • English</div>
@@ -336,14 +395,9 @@
                         <a href="#" class="add-to-watchlist">+</a>
                     </div>
                 </div>
-                <div class="hero-thumbnail" id="hero-thumbnail2">
-                    <img src="droom.png" alt="Dr. Droom Trailer" />
-                </div>
-                <div class="video-player" id="video-player2">
-                    <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                </div>
             </div>
-            <div class="hero" id="hero3">
+            <div class="hero" id="hero3" style="background-image: url('lion.jpg');">
+                <div class="overlay"></div>
                 <div class="hero-content" id="hero-content3">
                     <h1>The Untold Story of The Lion King | Hidden Truths</h1>
                     <div class="meta">U/A 13+ • English</div>
@@ -354,17 +408,19 @@
                         <a href="#" class="add-to-watchlist">+</a>
                     </div>
                 </div>
-                <div class="hero-thumbnail" id="hero-thumbnail3">
-                    <img src="lion.jpg" alt="The Untold Story of The Lion King" />
-                </div>
-                <div class="video-player" id="video-player3">
-                    <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                </div>
             </div>
         </div>
         <div class="nav-buttons">
-            <button class="nav-button" id="hero-prev-button">❮</button>
-            <button class="nav-button" id="hero-next-button">❯</button>
+            <button class="nav-button" id="hero-prev-button" aria-label="Previous slide">❮</button>
+            <button class="nav-button" id="hero-next-button" aria-label="Next slide">❯</button>
+        </div>
+    </div>
+    <div id="search-modal">
+        <div class="video-frame">
+            <button class="close-button" id="close-search">Close</button>
+            <input type="text" id="search-input" placeholder="Search videos...">
+            <button id="search-button">Search</button>
+            <div id="search-results-container"></div>
         </div>
     </div>
     <div class="latest-releases">
@@ -372,25 +428,29 @@
         <div class="releases-container">
             <div class="releases-grid" id="releases-grid">
                 <div class="release-item" data-video="https://www.youtube.com/embed/KA1qn1Dc3vU">
-                    <img src="Memes.png" alt="RCB Trolls" />
+                    <img src="Memes.png" alt="RCB Trolls" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>👉 "RCB Trolls 😂</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/qYvjYYElCqs">
-                    <img src="thumb.jpg" alt="MrBeast vs IShowSpeed" />
+                    <img src="thumb.jpg" alt="MrBeast vs IShowSpeed" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>MrBeast vs IShowSpeed</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/okoI0CqiGXU">
-                    <img src="droom.png" alt="Dr. Droom" />
+                    <img src="droom.png" alt="Dr. Droom" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>Dr. Droom - Marvel’s Next Big Villain?</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/DG4WZpZ4710">
-                    <img src="lion.jpg" alt="The Untold Story of The Lion King" />
+                    <img src="lion.jpg" alt="The Untold Story of The Lion King" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>The Untold Story of The Lion King</p>
                 </div>
             </div>
             <div class="nav-buttons">
-                <button class="nav-button" id="releases-prev-button">❮</button>
-                <button class="nav-button" id="releases-next-button">❯</button>
+                <button class="nav-button" id="releases-prev-button" aria-label="Previous release">❮</button>
+                <button class="nav-button" id="releases-next-button" aria-label="Next release">❯</button>
             </div>
         </div>
     </div>
@@ -399,183 +459,181 @@
         <div class="releases-container">
             <div class="releases-grid" id="releases-grid-most-epic">
                 <div class="release-item" data-video="https://www.youtube.com/embed/apjisnQtSnY">
-                    <img src="ipl.webp" alt="IPL Multiverse" />
+                    <img src="ipl.webp" alt="IPL Multiverse" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>IPL Multiverse</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/4KcLZJOx3fc">
-                    <img src="image.webp" alt="Suryakantham and Hero Krishna" />
+                    <img src="image.webp" alt="Suryakantham and Hero Krishna" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>Suryakantham and Hero Krishna Comedy</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/qrzJEDp2Lgg">
-                    <img src="OIP.jpeg" alt="ROBO AI" />
+                    <img src="OIP.jpeg" alt="ROBO AI" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>ROBO AI</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/sUTPi1s2nrc">
-                    <img src="The.png" alt="The Untold Story of The Lion King" />
+                    <img src="The.png" alt="The Untold Story of The Lion King" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>The Untold Story of The Lion King</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/dHmAPj1x4O8">
-                    <img src="sip.jpg" alt="Baby Spiderman" />
+                    <img src="sip.jpg" alt="Baby Spiderman" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
                     <p>Baby Spiderman Climbing the Wall</p>
                 </div>
                 <div class="release-item" data-video="https://www.youtube.com/embed/cvivf_z-400">
-                    <img src="cat.webp" alt="Angry Cat" />
-                    <p>😾 Cute But Angry! Cat Shouting</p>
+                    <img src="cat.webp" alt="Angry Cat" loading="lazy" />
+                    <div class="play-icon"><img src="play.png" alt="Play" loading="lazy"></div>
+                    <p>😾 Cute But Angry! Cat Shouting with an Adorable Meow! 🐱🔥</p>
                 </div>
             </div>
             <div class="nav-buttons">
-                <button class="nav-button" id="releases-prev-button-most-epic">❮</button>
-                <button class="nav-button" id="releases-next-button-most-epic">❯</button>
+                <button class="nav-button" id="releases-prev-button-most-epic" aria-label="Previous most epic">❮</button>
+                <button class="nav-button" id="releases-next-button-most-epic" aria-label="Next most epic">❯</button>
             </div>
         </div>
     </div>
-    <div class="video-modal">
-        <div class="video-frame">
-            <button class="close-button" aria-label="Close video player">Close</button>
-            <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+    <div class="video-modal" style="display: none;">
+        <div class="video-player">
+            <button class="close-button" id="close-video" aria-label="Close video player">Close</button>
+            <div class="video-frame">
+                <iframe src="" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+            </div>
         </div>
     </div>
-
     <script>
-        const heroSections = [
-        {
-            element: document.getElementById('hero0'),
-            content: document.getElementById('hero-content0'),
-            thumbnail: document.getElementById('hero-thumbnail0'),
-            player: document.getElementById('video-player0'),
-            watchNow: document.getElementById('watch-now0'),
-            iframe: document.getElementById('video-player0').querySelector('iframe'),
-            videoUrl: "https://www.youtube.com/embed/KA1qn1Dc3vU"
-        },
-        {
-            element: document.getElementById('hero1'),
-            content: document.getElementById('hero-content1'),
-            thumbnail: document.getElementById('hero-thumbnail1'),
-            player: document.getElementById('video-player1'),
-            watchNow: document.getElementById('watch-now1'),
-            iframe: document.getElementById('video-player1').querySelector('iframe'),
-            videoUrl: "https://www.youtube.com/embed/qYvjYYElCqs"
-        },
-        {
-            element: document.getElementById('hero2'),
-            content: document.getElementById('hero-content2'),
-            thumbnail: document.getElementById('hero-thumbnail2'),
-            player: document.getElementById('video-player2'),
-            watchNow: document.getElementById('watch-now2'),
-            iframe: document.getElementById('video-player2').querySelector('iframe'),
-            videoUrl: "https://www.youtube.com/embed/okoI0CqiGXU"
-        },
-        {
-            element: document.getElementById('hero3'),
-            content: document.getElementById('hero-content3'),
-            thumbnail: document.getElementById('hero-thumbnail3'),
-            player: document.getElementById('video-player3'),
-            watchNow: document.getElementById('watch-now3'),
-            iframe: document.getElementById('video-player3').querySelector('iframe'),
-            videoUrl: "https://www.youtube.com/embed/DG4WZpZ4710"
-        }
-    ];
+        document.addEventListener('DOMContentLoaded', () => {
+            const heroSections = [
+                { element: document.getElementById('hero0'), content: document.getElementById('hero-content0'), videoUrl: "https://www.youtube.com/embed/KA1qn1Dc3vU", title: "RCB Trolls 😂 | IPL Funny Memes | RCB Chokers Moments" },
+                { element: document.getElementById('hero1'), content: document.getElementById('hero-content1'), videoUrl: "https://www.youtube.com/embed/qYvjYYElCqs", title: "MrBeast vs IShowSpeed - The Ultimate Showdown!" },
+                { element: document.getElementById('hero2'), content: document.getElementById('hero-content2'), videoUrl: "https://www.youtube.com/embed/okoI0CqiGXU", title: "Dr. Droom - Marvel’s Next Big Villain? | Official Trailer (2025)" },
+                { element: document.getElementById('hero3'), content: document.getElementById('hero-content3'), videoUrl: "https://www.youtube.com/embed/DG4WZpZ4710", title: "The Untold Story of The Lion King | Hidden Truths" }
+            ];
+            const releasesGrid = document.getElementById('releases-grid');
+            const releasesGridMostEpic = document.getElementById('releases-grid-most-epic');
+            const heroPrevButton = document.getElementById('hero-prev-button');
+            const heroNextButton = document.getElementById('hero-next-button');
+            const releasesPrevButton = document.getElementById('releases-prev-button');
+            const releasesNextButton = document.getElementById('releases-next-button');
+            const releasesPrevButtonMostEpic = document.getElementById('releases-prev-button-most-epic');
+            const releasesNextButtonMostEpic = document.getElementById('releases-next-button-most-epic');
+            const searchModal = document.getElementById('search-modal');
+            const searchToggle = document.getElementById('search-toggle');
+            const closeSearch = document.getElementById('close-search');
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            const searchResultsContainer = document.getElementById('search-results-container');
+            let currentHeroIndex = 0;
 
-    const releasesGrid = document.getElementById('releases-grid');
-    const releasesGridMostEpic = document.getElementById('releases-grid-most-epic');
-    const heroPrevButton = document.getElementById('hero-prev-button');
-    const heroNextButton = document.getElementById('hero-next-button');
-    const releasesPrevButton = document.getElementById('releases-prev-button');
-    const releasesNextButton = document.getElementById('releases-next-button');
-    const releasesPrevButtonMostEpic = document.getElementById('releases-prev-button-most-epic');
-    const releasesNextButtonMostEpic = document.getElementById('releases-next-button-most-epic');
-    const videoModal = document.querySelector('.video-modal');
-    const videoIframe = videoModal.querySelector('iframe');
-    const closeButton = document.querySelector('.close-button');
-
-    let currentHeroIndex = 0;
-
-    function openVideoPlayer(url) {
-        videoIframe.src = url;
-        videoModal.classList.add('active');
-    }
-
-    function closeVideoPlayer() {
-        videoIframe.src = '';
-        videoModal.classList.remove('active');
-    }
-
-    closeButton.addEventListener('click', closeVideoPlayer);
-
-    function updateHeroSlides() {
-        heroSections.forEach((section, index) => {
-            section.element.classList.toggle('active', index === currentHeroIndex);
-            section.player.classList.remove('active');
-            section.iframe.src = '';
-        });
-        // Remove the disabled states since we want continuous looping
-        heroPrevButton.disabled = false;
-        heroNextButton.disabled = false;
-    }
-
-    heroSections.forEach(section => {
-        section.watchNow.addEventListener('click', (e) => {
-            e.preventDefault();
-            openVideoPlayer(section.videoUrl);
-        });
-        section.thumbnail.addEventListener('click', () => {
-            openVideoPlayer(section.videoUrl);
-        });
-    });
-
-    heroNextButton.addEventListener('click', () => {
-        currentHeroIndex = (currentHeroIndex + 1) % heroSections.length;
-        updateHeroSlides();
-    });
-
-    heroPrevButton.addEventListener('click', () => {
-        currentHeroIndex = (currentHeroIndex - 1 + heroSections.length) % heroSections.length;
-        updateHeroSlides();
-    });
-
-        function setupSlider(grid, prevButton, nextButton) {
-            const releaseItems = grid.querySelectorAll('.release-item');
-            const slideWidth = 220;
-            const visibleSlides = 4;
-            let currentPosition = 0;
-            const totalSlides = releaseItems.length;
-            const maxPosition = Math.max(0, totalSlides - visibleSlides);
-
-            function updateSlides() {
-                grid.style.transform = `translateX(-${currentPosition * slideWidth}px)`;
-                prevButton.disabled = currentPosition === 0;
-                nextButton.disabled = currentPosition === maxPosition;
+            function openVideoPlayer(url) {
+                document.querySelector('.video-frame iframe').src = url + "?autoplay=1";
+                document.querySelector('.video-modal').style.display = 'flex';
             }
 
-            releaseItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const videoUrl = item.getAttribute('data-video');
-                    if (videoUrl) {
-                        openVideoPlayer(videoUrl);
-                    }
+            function closeVideoPlayer() {
+                document.querySelector('.video-frame iframe').src = '';
+                document.querySelector('.video-modal').style.display = 'none';
+            }
+
+            document.getElementById('close-video').addEventListener('click', closeVideoPlayer);
+
+            function updateHeroSlides() {
+                heroSections.forEach((section, index) => {
+                    section.element.classList.toggle('active', index === currentHeroIndex);
+                });
+            }
+
+            heroSections.forEach(section => {
+                section.content.querySelector('.watch-now').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openVideoPlayer(section.videoUrl);
                 });
             });
 
-            nextButton.addEventListener('click', () => {
-                if (currentPosition < maxPosition) {
-                    currentPosition++;
-                    updateSlides();
+            heroNextButton.addEventListener('click', () => {
+                currentHeroIndex = (currentHeroIndex + 1) % heroSections.length;
+                updateHeroSlides();
+            });
+
+            heroPrevButton.addEventListener('click', () => {
+                currentHeroIndex = (currentHeroIndex - 1 + heroSections.length) % heroSections.length;
+                updateHeroSlides();
+            });
+
+            function setupSlider(grid, prevButton, nextButton) {
+                const releaseItems = grid.querySelectorAll('.release-item');
+                const slideWidth = 220;
+                const visibleSlides = 4;
+                let currentPosition = 0;
+                const totalSlides = releaseItems.length;
+                const maxPosition = Math.max(0, totalSlides - visibleSlides);
+
+                function updateSlides() {
+                    grid.style.transform = `translateX(-${currentPosition * slideWidth}px)`;
+                    prevButton.disabled = currentPosition === 0;
+                    nextButton.disabled = currentPosition >= maxPosition;
+                }
+
+                releaseItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const videoUrl = item.getAttribute('data-video');
+                        openVideoPlayer(videoUrl);
+                    });
+                });
+
+                nextButton.addEventListener('click', () => {
+                    if (currentPosition < maxPosition) {
+                        currentPosition++;
+                        updateSlides();
+                    }
+                });
+
+                prevButton.addEventListener('click', () => {
+                    if (currentPosition > 0) {
+                        currentPosition--;
+                        updateSlides();
+                    }
+                });
+
+                updateSlides();
+            }
+
+            searchToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                searchModal.classList.add('active');
+            });
+
+            closeSearch.addEventListener('click', () => {
+                console.log('Close search clicked'); // Debug log
+                searchModal.classList.remove('active');
+                searchResultsContainer.innerHTML = '';
+            });
+
+            searchButton.addEventListener('click', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                searchResultsContainer.innerHTML = '';
+                if (query) {
+                    const results = heroSections.filter(section => section.title.toLowerCase().includes(query));
+                    if (results.length > 0) {
+                        results.forEach(result => {
+                            const resultItem = document.createElement('div');
+                            resultItem.classList.add('search-result-item');
+                            resultItem.innerHTML = `<p>${result.title}</p>`;
+                            resultItem.addEventListener('click', () => openVideoPlayer(result.videoUrl));
+                            searchResultsContainer.appendChild(resultItem);
+                        });
+                    } else {
+                        searchResultsContainer.innerHTML = '<p style="padding: 10px;">No results found.</p>';
+                    }
                 }
             });
 
-            prevButton.addEventListener('click', () => {
-                if (currentPosition > 0) {
-                    currentPosition--;
-                    updateSlides();
-                }
-            });
-
-            updateSlides();
-        }
-
-        setupSlider(releasesGrid, releasesPrevButton, releasesNextButton);
-    setupSlider(releasesGridMostEpic, releasesPrevButtonMostEpic, releasesNextButtonMostEpic);
-    updateHeroSlides();
+            setupSlider(releasesGrid, releasesPrevButton, releasesNextButton);
+            setupSlider(releasesGridMostEpic, releasesPrevButtonMostEpic, releasesNextButtonMostEpic);
+            updateHeroSlides();
+        });
     </script>
 </body>
 </html>
